@@ -12,7 +12,7 @@ ARG NETWORK_ARG
 # - kubernetes (default)
 # - mesos
 # - local
-ENV USE_NGINX_PLUS=${USE_NGINX_PLUS_ARG:-true} \
+ENV USE_NGINX_PLUS=${USE_NGINX_PLUS_ARG:-false} \
     USE_VAULT=${USE_VAULT_ARG:-false} \
     APP="unicorn -c /usr/src/app/unicorn.rb -D" \
     CONTAINER_ENGINE=${CONTAINER_ENGINE_ARG:-kubernetes} \

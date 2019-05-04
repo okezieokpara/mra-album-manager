@@ -1,7 +1,7 @@
 #!groovy
 pipeline {
 // agent needs to build go, so start with golang:1.10-alpine
-    agent { docker { image 'docker' }  }
+    agent { docker { image 'ubuntu:14.04' }  }
     environment {
         NG_BRANCH = env.BRANCH_NAME.toLowerCase()
         TOKEN_RO=credentials('creds-dev-ro')
