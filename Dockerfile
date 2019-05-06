@@ -1,4 +1,4 @@
-FROM ruby:2.2.3
+FROM ruby:2.4.6-jessie 
 
 RUN useradd --create-home -s /bin/bash album-manager
 
@@ -20,6 +20,8 @@ ENV USE_NGINX_PLUS=${USE_NGINX_PLUS_ARG:-false} \
 
 COPY nginx/ssl /etc/ssl/nginx/
 
+
+
 # Install Required packages for installing NGINX Plus
 RUN apt-get update && apt-get install -y \
   apt-transport-https \
@@ -40,19 +42,19 @@ RUN apt-get update && apt-get install -y \
   rm -r /var/lib/apt/lists/* && \
   mkdir -p /etc/ssl/nginx
 
-ADD install-nginx.sh /usr/local/bin/
+ADD install-nginx.sh /usr/local/bin/install-nginx.sh
 COPY nginx /etc/nginx/
 COPY ./app /usr/src/app
 WORKDIR /usr/src/app
 
 # Install nginx and build the application
-RUN /usr/local/bin/install-nginx.sh && \
-  mkdir -p /var/log/nginx && \
+CMD ["install-nginx.sh"]
+RUN mkdir -p /var/log/nginx && \
   ln -sf /dev/stdout /var/log/nginx/access_log && \
   ln -sf /dev/stderr /var/log/nginx/error_log && \
   mkdir /tmp/sockets && \
   gem install bundler && \
-  bundle install --force
+  bundle install
 
 RUN mkdir -p /var/log/unicorn && \
     touch /var/log/unicorn/unicorn.stdout.log && \
