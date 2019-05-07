@@ -5,6 +5,7 @@ pipeline {
     environment {
         NG_BRANCH = env.BRANCH_NAME.toLowerCase()
         TOKEN_RO=credentials('creds-dev-ro')
+        DOCKER_REPO = "mra-album-manager"
     }
     options { disableConcurrentBuilds() }
     stages {
@@ -13,14 +14,14 @@ pipeline {
             steps {
             // this is the list of commands that will be run in the agent
               sh '''
-                apk update && apk add ca-certificates curl jq -y
+                apk add ca-certificates curl jq -y --no-cache
                 echo "Building ${NG_BRANCH} Number ${BUILD_NUMBER} - home: ${HOME}"
                 echo "get the NGINX Plus keys"
                 curl -k -sS -H "X-Vault-Token:${TOKEN_RO}" ${VAULT_CREDS_PATH}/nginx-repo.key | jq -r .data.key > nginx/ssl/nginx-repo.key
                 curl -k -sS -H "X-Vault-Token:${TOKEN_RO}" ${VAULT_CREDS_PATH}/nginx-repo.crt | jq -r .data.cert > nginx/ssl/nginx-repo.crt
-                echo "tagging images with:${REGISTRY_HOST}/mra/ngrefarch/mra-album-manager/${NG_BRANCH}"
-                docker build -t ${REGISTRY_HOST}/mra/ngrefarch/mra-album-manager/${NG_BRANCH}/mra-album-manager:${BUILD_NUMBER} .
-                docker push ${REGISTRY_HOST}/mra/ngrefarch/mra-album-manager/${NG_BRANCH}/mra-album-manager:${BUILD_NUMBER}
+                echo "tagging images with:${REGISTRY_HOST}/${DOCKER_REPO}:${BUILD_NUMBER}-${NG_BRANCH}"
+                docker build -t ${REGISTRY_HOST}/${DOCKER_REPO}:${BUILD_NUMBER}-${NG_BRANCH} .
+                docker push ${REGISTRY_HOST}/${DOCKER_REPO}:${BUILD_NUMBER}-${NG_BRANCH}
                 docker rmi $(docker images -f "dangling=true" -q) || true
               '''
         }
